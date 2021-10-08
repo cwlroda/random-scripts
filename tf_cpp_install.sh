@@ -23,12 +23,14 @@ read -s -p "Enter password for [sudo]: " sudoPW
 
 START=$(date +%s.%N)
 
-if [ ! -d deps ]; then
-    mkdir deps
-fi
-cd deps
-
 echo $sudoPW | sudo -S apt-get update && sudo -S apt-get upgrade -y
+echo $sudoPW | sudo -S apt-get install -y build-essential curl git cmake unzip autoconf autogen automake libtool mlocate zlib1g-dev gcc-7 g++-7 wget
+echo $sudoPW | sudo -S apt-get install -y python python3 python3-numpy python3-dev python3-pip python3-wheel
+echo $sudoPW | sudo -S apt-get install -y python3.6 python3.6-dev
+echo $sudoPW | sudo -S updatedb
+
+echo $sudoPW | sudo -S update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 100
+echo $sudoPW | sudo -S update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 100
 
 
 ###--- BAZEL 0.24.1 ---###
@@ -46,14 +48,6 @@ if [[ $BAZEL_VER != "0.24.1" ]]; then
 fi
 
 bazel version
-
-echo $sudoPW | sudo -S apt-get install -y build-essential curl git cmake unzip autoconf autogen automake libtool mlocate zlib1g-dev gcc-7 g++-7 wget
-echo $sudoPW | sudo -S apt-get install -y python python3 python3-numpy python3-dev python3-pip python3-wheel
-echo $sudoPW | sudo -S apt-get install -y python3.6 python3.6-dev
-echo $sudoPW | sudo -S updatedb
-
-echo $sudoPW | sudo -S update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 100
-echo $sudoPW | sudo -S update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 100
 
 
 ###--- TF 1.14.0 ---###
@@ -136,16 +130,6 @@ echo $sudoPW | sudo -S cp -r bazel-genfiles/tensorflow/include/ /usr/local/tenso
 echo $sudoPW | sudo -S cp -r /usr/local/include/google/ /usr/local/tensorflow/include/
 echo $sudoPW | sudo -S mkdir /usr/local/tensorflow/lib
 echo $sudoPW | sudo -S cp -r bazel-bin/tensorflow/* /usr/local/tensorflow/lib
-cd ../..
-
-make -j$(nproc) M3DFXOffline
-
-if [ -f Build/x64/Release/3DFX/M3DFXOffline ]; then
-    echo "Installation Success!"
-else
-    echo "Installation Failed!"
-    exit 1
-fi
 
 DURATION=$(echo "$(date +%s.%N) - ${START}" | bc)
 echo "Script Execution Time: ${DURATION} seconds"
