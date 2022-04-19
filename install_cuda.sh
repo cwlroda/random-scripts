@@ -1,4 +1,5 @@
 #!/bin/bash
+# Installation script for CUDA >= 10 (no root required)
 
 # set -x
 # trap read debug

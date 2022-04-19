@@ -1,4 +1,5 @@
 #!/bin/bash
+# Free storage space script
 
 # Clean apt cache
 sudo apt-get clean
