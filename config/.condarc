@@ -1,0 +1,15 @@
+always_yes: True
+auto_activate_base: False
+changeps1: False
+channels:
+  - defaults
+  - anaconda
+  - conda-forge
+create_default_packages:
+  - ipython
+  - pip
+  - setuptools
+  - wheel
+default_threads: 4
+show_channel_urls: True
+update_dependencies: True
