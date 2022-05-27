@@ -61,14 +61,16 @@ if [ -f ~/.bash_colors ]; then
 fi
 
 # color coding
+ARROW=$(echo -e $'\uE0B0')
+export VIRTUAL_ENV_DISABLE_PROMPT=1
 function set_venv() {
     if test -z "$VIRTUAL_ENV"; then
         echo ""
     else
-        if test -n "$CONDA_DEFAULT_ENV"; then
-            conda deactivate
-        fi
-        echo "(`basename \"$VIRTUAL_ENV\"`) "
+        # if test -n "$CONDA_DEFAULT_ENV"; then
+        #     conda deactivate
+        # fi
+        echo -e " (`basename \"$VIRTUAL_ENV\"`) ${ENV_DATE_COLOR}${ARROW}"
     fi
 }
 
@@ -76,26 +78,39 @@ function set_condaenv() {
     if test -z "$CONDA_DEFAULT_ENV"; then
         echo ""
     else
-        if test -n "$VIRTUAL_ENV"; then
-            unset VIRTUAL_ENV & deactivate
-        fi
-        echo "(`basename \"$CONDA_DEFAULT_ENV\"`) "
+        # if test -n "$VIRTUAL_ENV"; then
+        #     unset VIRTUAL_ENV & deactivate
+        # fi
+        echo -e " (`basename \"$CONDA_DEFAULT_ENV\"`) ${ENV_DATE_COLOR}${ARROW}"
     fi
 }
 
 function env_color() {
     if [[ -z "$VIRTUAL_ENV" || -z "$CONDA_DEFAULT_ENV" ]]; then
-        echo -e $PURPLE_BOLD_BRIGHT
+        echo -e $ENV_COLOR
     else
         echo -e $BLINK
+    fi
+}
+
+function set_env() {
+    VENV=set_venv
+    CONDA_ENV=set_condaenv
+    if [[ -z "$VIRTUAL_ENV" && -z "$CONDA_DEFAULT_ENV" ]]; then
+        echo -e ""
+    else
+        if [[ -z "$VIRTUAL_ENV" || -z "$CONDA_DEFAULT_ENV" ]]; then
+            echo -e "${ENV_COLOR}${VENV}${CONDA_ENV}${ENV_DATE_COLOR}${ARROW}"
+        else
+            echo -e "${ENV_BLINK_COLOR}${VENV}${CONDA_ENV}${ENV_DATE_COLOR}${ARROW}"
+        fi
     fi
 }
 
 # get current branch in git repo
 function parse_git_branch() {
     BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
-    if [ ! "${BRANCH}" == "" ]
-    then
+    if [ ! "${BRANCH}" == "" ]; then
         STAT=`parse_git_dirty`
         echo "[${BRANCH}${STAT}] "
     else
@@ -138,10 +153,23 @@ function parse_git_dirty() {
     fi
 }
 
+function nonzero_return() {
+    RETVAL=$?
+    [ $RETVAL -ne 0 ] && echo $RETVAL
+}
+
 if [ "$color_prompt" = yes ]; then
-    PS1="${debian_chroot:+($debian_chroot)}\`env_color\`\`set_venv\`\`set_condaenv\`${BLUE_BRIGHT}\D{%d/%m/%y} ${YELLOW_BRIGHT}\D{%T} ${GREEN_BRIGHT}\u: ${CYAN_BRIGHT}\w ${RED_BRIGHT}\`parse_git_branch\`${RESET}\\$ ${RESET}"
+    PS1="${debian_chroot:+($debian_chroot)}\[${ENV_COLOR}\]\`set_venv\`\[${ENV_COLOR}\]\`set_condaenv\`\[${DATE_COLOR}\] \D{%d/%m/%y} \[${DATE_TIME_COLOR}\]$ARROW \[${TIME_COLOR}\]\D{%T} \[${TIME_USER_COLOR}\]$ARROW \[${USER_COLOR}\]\u: \[${USER_DIR_COLOR}\]$ARROW \[${DIR_COLOR}\]\w \[${DIR_TOKEN_COLOR}\]$ARROW \[${TOKEN_COLOR}\]\\$ \[${END_COLOR}\]$ARROW \[${RESET}\]"
+    # PS1="${debian_chroot:+($debian_chroot)}\[\`env_color\`\]\`set_venv\`\`set_condaenv\`\[${BLUE_BRIGHT}\]\D{%d/%m/%y} \[${YELLOW_BRIGHT}\]\D{%T} \[${GREEN_BRIGHT}\]\u: \[${CYAN_BRIGHT}\]\w \[${RED_BRIGHT}\]\`parse_git_branch\`\[${RESET}\]\\$ \[${RESET}\]"
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+
+if [ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]; then
+    GIT_PROMPT_ONLY_IN_REPO=1
+    GIT_PROMPT_WITH_VIRTUAL_ENV=0
+    GIT_PROMPT_THEME="cwlroda"
+    source $HOME/.bash-git-prompt/gitprompt.sh
 fi
 unset color_prompt force_color_prompt
 
@@ -224,9 +252,10 @@ export CFLAGS="-I$CUDA_HOME/include $CFLAGS"
 
 # flutter
 export PATH="$PATH:`pwd`/flutter/bin"
+export CHROME_EXECUTABLE=/usr/bin/chromium-browser
 
 # android studio
-export JAVA_HOME=/usr/java/openjdk/jdk-16.0.1/
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/
 export ANDROID_HOME=$HOME/android
 export PATH=$ANDROID_HOME/cmdline-tools/tools/bin/:$PATH
 export PATH=$ANDROID_HOME/emulator/:$PATH
@@ -234,6 +263,9 @@ export PATH=$ANDROID_HOME/platform-tools/:$PATH
 
 # https://github.com/nvbn/thefuck
 eval $(thefuck --alias fk)
+
+# https://github.com/gsamokovarov/jump
+# eval "$(jump shell bash)"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
@@ -254,8 +286,28 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
-export GITHUB_USER=""
-export GITHUB_TOKEN=""
+# git ssh key passphrase
+env=~/.ssh/agent.env
+
+agent_load_env () { test -f "$env" && . "$env" >| /dev/null ; }
+
+agent_start () {
+    (umask 077; ssh-agent >| "$env")
+. "$env" >| /dev/null ; }
+
+agent_load_env
+
+# agent_run_state: 0=agent running w/ key; 1=agent w/o key; 2=agent not running
+agent_run_state=$(ssh-add -l >| /dev/null 2>&1; echo $?)
+
+if [ ! "$SSH_AUTH_SOCK" ] || [ $agent_run_state = 2 ]; then
+    agent_start
+    ssh-add
+    elif [ "$SSH_AUTH_SOCK" ] && [ $agent_run_state = 1 ]; then
+    ssh-add
+fi
+
+unset env
 
 eval "$(hub alias -s)"
 
