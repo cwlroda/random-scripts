@@ -23,32 +23,32 @@ override_git_prompt_colors() {
     CURRENT_FULLPATH=$(pwd)
     local PS1=$GIT_CONTAINER_FOLDER${CURRENT_FULLPATH#$GIT_CONTAINER_FOLDER_FULLPATH}
     gp_set_window_title "$PS1"
-    echo -n "${DIR_COLOR}${PS1} ${CYAN_BRIGHT}${ARROW}${ResetColor}"
+    echo -n "\[${DIR_COLOR}\]${PS1} \[${CYAN_BRIGHT}\]${ARROW}\[${RESET}\]"
   }
 
   Time12a="\$(date +%H:%M:%S)"
-  GIT_PROMPT_BRANCH="${BoldMagenta}"        # the git branch that is active in the current directory
-  GIT_PROMPT_MASTER_BRANCH="${BoldMagenta}" # used if the git branch that is active in the current directory is $GIT_PROMPT_MASTER_BRANCHES
-  GIT_PROMPT_PREFIX="${BoldWhite}[ "                 # start of the git info string
-  GIT_PROMPT_SUFFIX="${BoldWhite} ]"                 # the end of the git info string
-  GIT_PROMPT_SEPARATOR="${BoldWhite} |"              # separates each item
-  GIT_PROMPT_STAGED=" ${Green}●"           # the number of staged files/directories
-  GIT_PROMPT_CONFLICTS=" ${BoldRed}✖"       # the number of files in conflict
-  GIT_PROMPT_CHANGED=" ${BoldBlue}✚"        # the number of changed files
+  GIT_PROMPT_BRANCH="\[${PURPLE_BOLD}\]"        # the git branch that is active in the current directory
+  GIT_PROMPT_MASTER_BRANCH="\[${PURPLE_BOLD}\]" # used if the git branch that is active in the current directory is $GIT_PROMPT_MASTER_BRANCHES
+  GIT_PROMPT_PREFIX="\[${WHITE_BOLD}\][ "                 # start of the git info string
+  GIT_PROMPT_SUFFIX="\[${WHITE_BOLD}\] ]"                 # the end of the git info string
+  GIT_PROMPT_SEPARATOR="\[${WHITE_BOLD}\] |"              # separates each item
+  GIT_PROMPT_STAGED=" \[${GREEN}\]●"           # the number of staged files/directories
+  GIT_PROMPT_CONFLICTS=" \[${RED_BOLD}\]✖"       # the number of files in conflict
+  GIT_PROMPT_CHANGED=" \[${BLUE_BOLD}\]✚"        # the number of changed files
 
   # GIT_PROMPT_REMOTE=" "                 # the remote branch name (if any) and the symbols for ahead and behind
-  GIT_PROMPT_UNTRACKED=" ${Cyan}…"       # the number of untracked files/dirs
-  GIT_PROMPT_STASHED=" ${BoldCyan}⚑"    # the number of stashed files/dir
+  GIT_PROMPT_UNTRACKED=" \[${CYAN}\]…"       # the number of untracked files/dirs
+  GIT_PROMPT_STASHED=" \[${CYAN_BOLD}\]⚑"    # the number of stashed files/dir
   GIT_PROMPT_CLEAN=" 😀"      # a colored flag indicating a "clean" repo
 
-  local gp_end="_LAST_COMMAND_INDICATOR_\n${White}${Time12a}${ResetColor}"
+  local gp_end="_LAST_COMMAND_INDICATOR_\n\[${WHITE}\]${Time12a}\[${RESET}\]"
 
-  GIT_PROMPT_START_USER="${debian_chroot:+($debian_chroot)}\`set_venv\`\`set_condaenv\`\[${DATE_COLOR}\] \D{%d/%m/%y} \[${DATE_TIME_COLOR}\]$ARROW \[${TIME_COLOR}\]\D{%T} \[${TIME_USER_COLOR}\]$ARROW \[${USER_COLOR}\]\u: \[${USER_DIR_COLOR}\]$ARROW "
+  GIT_PROMPT_START_USER="${debian_chroot:+($debian_chroot)}\[${ENV_COLOR}\]${VENV}\[${ENV_COLOR}\]${CONDAENV}\[${DATE_COLOR}\] \D{%d/%m/%y} \[${DATE_TIME_COLOR}\]$ARROW \[${TIME_COLOR}\]\D{%T} \[${TIME_USER_COLOR}\]$ARROW \[${USER_COLOR}\]\u: \[${USER_DIR_COLOR}\]$ARROW "
   GIT_PROMPT_END_USER="_LAST_COMMAND_INDICATOR_ \[${TOKEN_COLOR}\] \\$ \[${END_COLOR}\]$ARROW \[${RESET}\]"
   # GIT_PROMPT_END_ROOT="${gp_end} /!!!\ "
 
-  GIT_PROMPT_COMMAND_OK=" ${BoldGreen}😀"    # indicator if the last command returned with an exit code of 0
-  GIT_PROMPT_COMMAND_FAIL=" ${BoldRed}😱-_LAST_COMMAND_STATE_"    # indicator if the last command returned with an exit code of other than 0
+  GIT_PROMPT_COMMAND_OK=" \[${GREEN_BOLD}\]😀"    # indicator if the last command returned with an exit code of 0
+  GIT_PROMPT_COMMAND_FAIL=" \[${RED_BOLD}\]😱-_LAST_COMMAND_STATE_"    # indicator if the last command returned with an exit code of other than 0
 }
 
 reload_git_prompt_colors "cwlroda"
