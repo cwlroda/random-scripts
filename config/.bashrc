@@ -30,144 +30,133 @@ shopt -s globstar
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# set variable identifying the chroot you work in (used in the prompt below)
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
-fi
-
-# set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
-esac
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-force_color_prompt=yes
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-        # We have color support; assume it's compliant with Ecma-48
-        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-        # a case would tend to support setf rather than setaf.)
-        color_prompt=yes
-    else
-        color_prompt=
+set_bash_prompt() {
+    # set variable identifying the chroot you work in (used in the prompt below)
+    if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+        debian_chroot=$(cat /etc/debian_chroot)
     fi
-fi
-
-if [ -f ~/.bash_colors ]; then
-    . ~/.bash_colors
-fi
-
-# color coding
-ARROW=$(echo -e $'\uE0B0')
-export VIRTUAL_ENV_DISABLE_PROMPT=1
-if test -z "$VIRTUAL_ENV"; then
-    VENV=""
-else
-    # if test -n "$CONDA_DEFAULT_ENV"; then
-    #     conda deactivate
-    # fi
-    VENV=" (`basename \"$VIRTUAL_ENV\"`) \[${ENV_DATE_COLOR}\]${ARROW}"
-fi
-
-if test -z "$CONDA_DEFAULT_ENV"; then
-    CONDAENV=""
-else
-    # if test -n "$VIRTUAL_ENV"; then
-    #     unset VIRTUAL_ENV & deactivate
-    # fi
-    CONDAENV=" (`basename \"$CONDA_DEFAULT_ENV\"`) \[${ENV_DATE_COLOR}\]${ARROW}"
-fi
-
-function env_color() {
-    if [[ -z "$VIRTUAL_ENV" || -z "$CONDA_DEFAULT_ENV" ]]; then
-        echo -e $ENV_COLOR
-    else
-        echo -e $BLINK
-    fi
-}
-
-function set_env() {
-    VENV=set_venv
-    CONDA_ENV=set_condaenv
-    if [[ -z "$VIRTUAL_ENV" && -z "$CONDA_DEFAULT_ENV" ]]; then
-        echo -e ""
-    else
-        if [[ -z "$VIRTUAL_ENV" || -z "$CONDA_DEFAULT_ENV" ]]; then
-            echo -e ${ENV_COLOR}${VENV}${CONDA_ENV}${ENV_DATE_COLOR}${ARROW}
+    
+    # set a fancy prompt (non-color, unless we know we "want" color)
+    case "$TERM" in
+        xterm-color|*-256color) color_prompt=yes;;
+    esac
+    
+    # uncomment for a colored prompt, if the terminal has the capability; turned
+    # off by default to not distract the user: the focus in a terminal window
+    # should be on the output of commands, not on the prompt
+    force_color_prompt=yes
+    
+    if [ -n "$force_color_prompt" ]; then
+        if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+            # We have color support; assume it's compliant with Ecma-48
+            # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+            # a case would tend to support setf rather than setaf.)
+            color_prompt=yes
         else
-            echo -e ${ENV_BLINK_COLOR}${VENV}${CONDA_ENV}${ENV_DATE_COLOR}${ARROW}
+            color_prompt=
         fi
     fi
-}
-
-# get current branch in git repo
-function parse_git_branch() {
-    BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
-    if [ ! "${BRANCH}" == "" ]; then
-        STAT=`parse_git_dirty`
-        echo "[${BRANCH}${STAT}] "
+    
+    if [ -f ~/.bash_colors ]; then
+        . ~/.bash_colors
+    fi
+    
+    # color coding
+    ARROW=$(echo -e $'\uE0B0')
+    
+    if test -z "$VIRTUAL_ENV"; then
+        VENV=""
     else
-        echo ""
+        if test -n "$CONDA_DEFAULT_ENV"; then
+            conda deactivate
+        fi
+        VENV=" (`basename \"$VIRTUAL_ENV\"`) \[${ENV_DATE_COLOR}\]${ARROW}"
     fi
-}
-
-# get current status of git repo
-function parse_git_dirty() {
-    status=`git status 2>&1 | tee`
-    dirty=`echo -n "${status}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`
-    untracked=`echo -n "${status}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`
-    ahead=`echo -n "${status}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`
-    newfile=`echo -n "${status}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
-    renamed=`echo -n "${status}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
-    deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
-    bits=''
-    if [ "${renamed}" == "0" ]; then
-        bits=">${bits}"
-    fi
-    if [ "${ahead}" == "0" ]; then
-        bits="*${bits}"
-    fi
-    if [ "${newfile}" == "0" ]; then
-        bits="+${bits}"
-    fi
-    if [ "${untracked}" == "0" ]; then
-        bits="?${bits}"
-    fi
-    if [ "${deleted}" == "0" ]; then
-        bits="x${bits}"
-    fi
-    if [ "${dirty}" == "0" ]; then
-        bits="!${bits}"
-    fi
-    if [ ! "${bits}" == "" ]; then
-        echo " ${bits}"
+    
+    if test -z "$CONDA_DEFAULT_ENV"; then
+        CONDAENV=""
     else
-        echo ""
+        if test -n "$VIRTUAL_ENV"; then
+            unset VIRTUAL_ENV & deactivate
+        fi
+        CONDAENV=" (`basename \"$CONDA_DEFAULT_ENV\"`) \[${ENV_DATE_COLOR}\]${ARROW}"
     fi
+    
+    if [[ -z "$VIRTUAL_ENV" || -z "$CONDA_DEFAULT_ENV" ]]; then
+        :;
+    else
+        VENV=" \[${ENV_BLINK_COLOR}\](`basename \"$VIRTUAL_ENV\"`)"
+        CONDAENV=" (`basename \"$CONDA_DEFAULT_ENV\"`) \[${RESET}\]\[${ENV_DATE_COLOR}\]${ARROW}"
+    fi
+    
+    # get current branch in git repo
+    function parse_git_branch() {
+        BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
+        if [ ! "${BRANCH}" == "" ]; then
+            STAT=`parse_git_dirty`
+            echo "[${BRANCH}${STAT}] "
+        else
+            echo ""
+        fi
+    }
+    
+    # get current status of git repo
+    function parse_git_dirty() {
+        status=`git status 2>&1 | tee`
+        dirty=`echo -n "${status}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`
+        untracked=`echo -n "${status}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`
+        ahead=`echo -n "${status}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`
+        newfile=`echo -n "${status}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
+        renamed=`echo -n "${status}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
+        deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
+        bits=''
+        if [ "${renamed}" == "0" ]; then
+            bits=">${bits}"
+        fi
+        if [ "${ahead}" == "0" ]; then
+            bits="*${bits}"
+        fi
+        if [ "${newfile}" == "0" ]; then
+            bits="+${bits}"
+        fi
+        if [ "${untracked}" == "0" ]; then
+            bits="?${bits}"
+        fi
+        if [ "${deleted}" == "0" ]; then
+            bits="x${bits}"
+        fi
+        if [ "${dirty}" == "0" ]; then
+            bits="!${bits}"
+        fi
+        if [ ! "${bits}" == "" ]; then
+            echo " ${bits}"
+        else
+            echo ""
+        fi
+    }
+    
+    function nonzero_return() {
+        RETVAL=$?
+        [ $RETVAL -ne 0 ] && echo $RETVAL
+    }
+    
+    if [ "$color_prompt" = yes ]; then
+        PS1="${debian_chroot:+($debian_chroot)}\[${ENV_COLOR}\]${VENV}\[${ENV_COLOR}\]${CONDAENV}\[${DATE_COLOR}\] \D{%d/%m/%y} \[${DATE_TIME_COLOR}\]$ARROW \[${TIME_COLOR}\]\D{%T} \[${TIME_USER_COLOR}\]$ARROW \[${USER_COLOR}\]\u: \[${USER_DIR_COLOR}\]$ARROW \[${DIR_COLOR}\]\w \[${DIR_TOKEN_COLOR}\]$ARROW \[${TOKEN_COLOR}\]\\$ \[${END_COLOR}\]$ARROW \[${RESET}\]"
+        # PS1="${debian_chroot:+($debian_chroot)}\[\`env_color\`\]\`set_venv\`\`set_condaenv\`\[${BLUE_BRIGHT}\]\D{%d/%m/%y} \[${YELLOW_BRIGHT}\]\D{%T} \[${GREEN_BRIGHT}\]\u: \[${CYAN_BRIGHT}\]\w \[${RED_BRIGHT}\]\`parse_git_branch\`\[${RESET}\]\\$ \[${RESET}\]"
+    else
+        PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    fi
+    
+    if [ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]; then
+        GIT_PROMPT_ONLY_IN_REPO=1
+        GIT_PROMPT_THEME="cwlroda"
+        source $HOME/.bash-git-prompt/gitprompt.sh
+    fi
+    
+    unset color_prompt force_color_prompt
 }
 
-function nonzero_return() {
-    RETVAL=$?
-    [ $RETVAL -ne 0 ] && echo $RETVAL
-}
-
-if [ "$color_prompt" = yes ]; then
-    PS1="${debian_chroot:+($debian_chroot)}\[${ENV_COLOR}\]${VENV}\[${ENV_COLOR}\]${CONDAENV}\[${DATE_COLOR}\] \D{%d/%m/%y} \[${DATE_TIME_COLOR}\]$ARROW \[${TIME_COLOR}\]\D{%T} \[${TIME_USER_COLOR}\]$ARROW \[${USER_COLOR}\]\u: \[${USER_DIR_COLOR}\]$ARROW \[${DIR_COLOR}\]\w \[${DIR_TOKEN_COLOR}\]$ARROW \[${TOKEN_COLOR}\]\\$ \[${END_COLOR}\]$ARROW \[${RESET}\]"
-    # PS1="${debian_chroot:+($debian_chroot)}\[\`env_color\`\]\`set_venv\`\`set_condaenv\`\[${BLUE_BRIGHT}\]\D{%d/%m/%y} \[${YELLOW_BRIGHT}\]\D{%T} \[${GREEN_BRIGHT}\]\u: \[${CYAN_BRIGHT}\]\w \[${RED_BRIGHT}\]\`parse_git_branch\`\[${RESET}\]\\$ \[${RESET}\]"
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-
-if [ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]; then
-    GIT_PROMPT_ONLY_IN_REPO=1
-    GIT_PROMPT_WITH_VIRTUAL_ENV=0
-    GIT_PROMPT_THEME="cwlroda"
-    source $HOME/.bash-git-prompt/gitprompt.sh
-fi
-unset color_prompt force_color_prompt
+PROMPT_COMMAND=set_bash_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in

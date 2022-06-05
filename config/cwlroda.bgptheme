@@ -14,7 +14,6 @@
 override_git_prompt_colors() {
   GIT_PROMPT_THEME_NAME="cwlroda"
   GIT_PROMPT_ONLY_IN_REPO=1
-  GIT_PROMPT_WITH_VIRTUAL_ENV=0
 
   #Overrides the prompt_callback function used by bash-git-prompt
   function prompt_callback {
@@ -43,7 +42,7 @@ override_git_prompt_colors() {
 
   local gp_end="_LAST_COMMAND_INDICATOR_\n\[${WHITE}\]${Time12a}\[${RESET}\]"
 
-  GIT_PROMPT_START_USER="${debian_chroot:+($debian_chroot)}\[${ENV_COLOR}\]${VENV}\[${ENV_COLOR}\]${CONDAENV}\[${DATE_COLOR}\] \D{%d/%m/%y} \[${DATE_TIME_COLOR}\]$ARROW \[${TIME_COLOR}\]\D{%T} \[${TIME_USER_COLOR}\]$ARROW \[${USER_COLOR}\]\u: \[${USER_DIR_COLOR}\]$ARROW "
+  GIT_PROMPT_START_USER="${debian_chroot:+($debian_chroot)}\[${DATE_COLOR}\] \D{%d/%m/%y} \[${DATE_TIME_COLOR}\]$ARROW \[${TIME_COLOR}\]\D{%T} \[${TIME_USER_COLOR}\]$ARROW \[${USER_COLOR}\]\u: \[${USER_DIR_COLOR}\]$ARROW "
   GIT_PROMPT_END_USER="_LAST_COMMAND_INDICATOR_ \[${TOKEN_COLOR}\] \\$ \[${END_COLOR}\]$ARROW \[${RESET}\]"
   # GIT_PROMPT_END_ROOT="${gp_end} /!!!\ "
 
