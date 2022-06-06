@@ -328,7 +328,6 @@ function setGitPrompt() {
     local repo=$(git rev-parse --show-toplevel 2> /dev/null)
     if [[ ! -e "${repo}" ]] && [[ "${GIT_PROMPT_ONLY_IN_REPO-}" = 1 ]]; then
         # we do not permit bash-git-prompt outside git repos, so nothing to do
-        PROMPT_COMMAND=set_bash_prompt
         return
     fi
     
@@ -603,47 +602,7 @@ function updatePrompt() {
 # Helper function that returns virtual env information to be set in prompt
 # Honors virtualenvs own setting VIRTUAL_ENV_DISABLE_PROMPT
 function gp_add_virtualenv_to_prompt {
-    if test -z "$VIRTUAL_ENV"; then
-        VENV=""
-    else
-        if test -n "$CONDA_DEFAULT_ENV"; then
-            conda deactivate
-        fi
-        VENV=" (`basename \"$VIRTUAL_ENV\"`) \[${ENV_DATE_COLOR}\]${ARROW}"
-    fi
-    
-    if test -z "$CONDA_DEFAULT_ENV"; then
-        CONDAENV=""
-    else
-        if test -n "$VIRTUAL_ENV"; then
-            unset VIRTUAL_ENV & deactivate
-        fi
-        CONDAENV=" (`basename \"$CONDA_DEFAULT_ENV\"`) \[${ENV_DATE_COLOR}\]${ARROW}"
-    fi
-    
-    if [[ -z "$VIRTUAL_ENV" || -z "$CONDA_DEFAULT_ENV" ]]; then
-        :;
-    else
-        VENV=" \[${ENV_BLINK_COLOR}\](`basename \"$VIRTUAL_ENV\"`)"
-        CONDAENV=" (`basename \"$CONDA_DEFAULT_ENV\"`) \[${RESET}\]\[${ENV_DATE_COLOR}\]${ARROW}"
-    fi
-    
     echo -e "\[${ENV_COLOR}\]${VENV}\[${ENV_COLOR}\]${CONDAENV}"
-    
-    # local ACCUMULATED_VENV_PROMPT=""
-    # local VENV=""
-    # if [[ -n "${VIRTUAL_ENV-}" && -z "${VIRTUAL_ENV_DISABLE_PROMPT+x}" ]]; then
-    #     VENV=$(basename "${VIRTUAL_ENV}")
-    #     ACCUMULATED_VENV_PROMPT="${ACCUMULATED_VENV_PROMPT}${GIT_PROMPT_VIRTUALENV//_VIRTUALENV_/${VENV}}"
-    # fi
-    # if [[ -n "${NODE_VIRTUAL_ENV-}" && -z "${NODE_VIRTUAL_ENV_DISABLE_PROMPT+x}" ]]; then
-    #     VENV=$(basename "${NODE_VIRTUAL_ENV}")
-    #     ACCUMULATED_VENV_PROMPT="${ACCUMULATED_VENV_PROMPT}${GIT_PROMPT_VIRTUALENV//_VIRTUALENV_/${VENV}}"
-    # fi
-    # if [[ -n "${CONDA_DEFAULT_ENV-}" ]]; then
-    #     VENV=$(basename "${CONDA_DEFAULT_ENV}")
-    #     ACCUMULATED_VENV_PROMPT="${ACCUMULATED_VENV_PROMPT}${GIT_PROMPT_VIRTUALENV//_VIRTUALENV_/${VENV}}"
-    # fi
 }
 
 # Use exit status from declare command to determine whether input argument is a
