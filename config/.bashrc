@@ -56,21 +56,21 @@ if [ -n "$force_color_prompt" ]; then
         # a case would tend to support setf rather than setaf.)
         color_prompt=yes
     else
-        color_prompt=no
+        color_prompt=
     fi
 fi
 
 ARROW=$(echo -e $'\uE0B0')
 
 set_bash_prompt() {
-    # color coding
+    # color coding for env
     if test -z "$VIRTUAL_ENV"; then
         VENV=""
     else
         if test -n "$CONDA_DEFAULT_ENV"; then
             conda deactivate
         fi
-        VENV=" (`basename \"$VIRTUAL_ENV\"`) \[${ENV_DATE_COLOR}\]${ARROW}"
+        VENV=" (`basename \"$VIRTUAL_ENV\"`) \[${ENV_SPACE_COLOR}\]$ARROW\[${SPACE_DATE_COLOR}\]$ARROW"
     fi
     
     if test -z "$CONDA_DEFAULT_ENV"; then
@@ -79,7 +79,7 @@ set_bash_prompt() {
         if test -n "$VIRTUAL_ENV"; then
             unset VIRTUAL_ENV & deactivate
         fi
-        CONDAENV=" (`basename \"$CONDA_DEFAULT_ENV\"`) \[${ENV_DATE_COLOR}\]${ARROW}"
+        CONDAENV=" (`basename \"$CONDA_DEFAULT_ENV\"`) \[${ENV_SPACE_COLOR}\]$ARROW\[${SPACE_DATE_COLOR}\]$ARROW"
     fi
     
     if [[ -z "$VIRTUAL_ENV" || -z "$CONDA_DEFAULT_ENV" ]]; then
@@ -90,17 +90,19 @@ set_bash_prompt() {
     fi
     
     local repo=$(git rev-parse --show-toplevel 2> /dev/null)
+    GIT_PROMPT_ONLY_IN_REPO=1
+    GIT_PROMPT_THEME="cwlroda"
     if [[ ! -e "${repo}" ]] && [[ "${GIT_PROMPT_ONLY_IN_REPO-}" = 1 ]]; then
+        if [ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]; then
+            source $HOME/.bash-git-prompt/gitprompt.sh
+        fi
         if [ "$color_prompt" = yes ]; then
-            PS1="${debian_chroot:+($debian_chroot)}\[${ENV_COLOR}\]${VENV}\[${ENV_COLOR}\]${CONDAENV}\[${DATE_COLOR}\] \D{%d/%m/%y} \[${DATE_TIME_COLOR}\]$ARROW \[${TIME_COLOR}\]\D{%T} \[${TIME_USER_COLOR}\]$ARROW \[${USER_COLOR}\]\u: \[${USER_DIR_COLOR}\]$ARROW \[${DIR_COLOR}\]\w \[${DIR_TOKEN_COLOR}\]$ARROW \[${TOKEN_COLOR}\]\\$ \[${END_COLOR}\]$ARROW \[${RESET}\]"
-            # PS1="${debian_chroot:+($debian_chroot)}\[\`env_color\`\]\`set_venv\`\`set_condaenv\`\[${BLUE_BRIGHT}\]\D{%d/%m/%y} \[${YELLOW_BRIGHT}\]\D{%T} \[${GREEN_BRIGHT}\]\u: \[${CYAN_BRIGHT}\]\w \[${RED_BRIGHT}\]\`parse_git_branch\`\[${RESET}\]\\$ \[${RESET}\]"
+            PS1="${debian_chroot:+($debian_chroot)}\[${ENV_COLOR}\]${VENV}\[${ENV_COLOR}\]${CONDAENV}\[${DATE_COLOR}\] \D{%d/%m/%y} \[${DATE_TIME_COLOR}\]$ARROW \[${TIME_COLOR}\]\D{%T} \[${TIME_USER_COLOR}\]$ARROW \[${USER_COLOR}\]\u: \[${USER_DIR_COLOR}\]$ARROW \[${DIR_COLOR}\]\w \[${DIR_TOKEN_COLOR}\]$ARROW\[${TOKEN_COLOR}\]$ARROW \$ \[${END_COLOR}\]$ARROW \[${RESET}\]"
         else
             PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
         fi
     else
         if [ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]; then
-            GIT_PROMPT_ONLY_IN_REPO=1
-            GIT_PROMPT_THEME="cwlroda"
             source $HOME/.bash-git-prompt/gitprompt.sh
         fi
     fi

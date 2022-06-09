@@ -43,7 +43,7 @@ override_git_prompt_colors() {
   local gp_end="_LAST_COMMAND_INDICATOR_\n\[${WHITE}\]${Time12a}\[${RESET}\]"
 
   GIT_PROMPT_START_USER="${debian_chroot:+($debian_chroot)}\[${DATE_COLOR}\] \D{%d/%m/%y} \[${DATE_TIME_COLOR}\]$ARROW \[${TIME_COLOR}\]\D{%T} \[${TIME_USER_COLOR}\]$ARROW \[${USER_COLOR}\]\u: \[${USER_DIR_COLOR}\]$ARROW "
-  GIT_PROMPT_END_USER="_LAST_COMMAND_INDICATOR_ \[${TOKEN_COLOR}\] \\$ \[${END_COLOR}\]$ARROW \[${RESET}\]"
+  GIT_PROMPT_END_USER="_LAST_COMMAND_INDICATOR_ \[${TOKEN_COLOR}\]$ARROW \\$ \[${END_COLOR}\]$ARROW \[${RESET}\]"
   # GIT_PROMPT_END_ROOT="${gp_end} /!!!\ "
 
   GIT_PROMPT_COMMAND_OK=" \[${GREEN_BOLD}\]😀"    # indicator if the last command returned with an exit code of 0
